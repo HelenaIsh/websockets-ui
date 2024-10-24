@@ -10,8 +10,7 @@ export function createWebSocketServer() {
     ws.on('message', (message: string) => {
       const type = JSON.parse(message).type;
       const data = JSON.parse(JSON.parse(message).data);
-      const response = controllers(type, data)
-      ws.send(response as any);
+      controllers(type, data, ws);
     });
 
     ws.on('close', () => {

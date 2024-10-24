@@ -10,16 +10,23 @@ export enum Res {
 }
 
 export interface User {
-    name: string,
-    password: string
+  name: string;
+  password: string;
+}
+
+export interface Room {
+  roomId: number | string;
+  roomUsers: {
+    name: string;
+    index: number | string;
+  }[];
 }
 
 export function isUser(obj: any): obj is User {
-    return (
-        typeof obj === 'object' &&
-        obj !== null &&
-        'name' in obj &&
-        'password' in obj
-    );
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'name' in obj &&
+    'password' in obj
+  );
 }
-
