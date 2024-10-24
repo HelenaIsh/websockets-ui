@@ -14,3 +14,12 @@ export interface User {
     password: string
 }
 
+export function isUser(obj: any): obj is User {
+    return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        'name' in obj &&
+        'password' in obj
+    );
+}
+
