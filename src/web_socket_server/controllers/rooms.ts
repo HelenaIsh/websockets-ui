@@ -1,7 +1,7 @@
-import { Res, User } from '../types';
+import { Res, Room, User } from '../types';
 import { addNewRoom, getOneUserRooms } from '../models/rooms';
-import { getCurrentUser } from '../models/users';
 import { v4 as uuidv4 } from 'uuid';
+import { getUser } from '../models/users';
 
 export function updateRoom() {
   const rooms = getOneUserRooms();
@@ -14,16 +14,26 @@ export function updateRoom() {
   return JSON.stringify(response);
 }
 
-export function createNewRoom() {
-  const currentUser: User = getCurrentUser();
-  const newRoom = {
-    roomId: uuidv4(),
-    roomUsers: [
-      {
-        name: currentUser.name,
-        index: currentUser.index || 0,
-      },
-    ],
-  };
-  addNewRoom(newRoom);
+export function createNewRoom(ws: WebSocket) {
+  const user = getUser(ws); 
+    
+    if (!user) {
+        ws.send(JSON.stringify({
+            type: 'error',
+            data: { message: 'User not found. Please register first.' }
+        }));
+        return;
+    }
+    
+    const newRoom: Room = {
+        roomId: uuidv4(),
+        roomUsers: [
+            {
+                name: user.name,
+                index: user.index,
+            }
+        ],
+    };
+    
+    addNewRoom(newRoom);
 }

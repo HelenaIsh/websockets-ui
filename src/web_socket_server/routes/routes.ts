@@ -12,7 +12,7 @@ export default (type: Res, data: any, ws: any) => {
       ws.send(updateWinners());
       break;
     case Res.create_room:
-      createNewRoom();
+      createNewRoom(ws);
       ws.send(updateRoom());
       break;
     case Res.add_user_to_room:

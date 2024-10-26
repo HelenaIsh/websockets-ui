@@ -1,25 +1,20 @@
 import { User } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
-const users: User[] = [];
+const users = new Map<WebSocket, User>();
 
 export function addUser(newUser: User, ws: WebSocket) {
-  const foundUser = users.filter(
-    (existingUser) => existingUser.name === newUser.name,
-  )[0];
+  const foundUser = users.get(ws);
   if (foundUser) {
-    const wrongPasswordError =
-      foundUser.password !== newUser.password ? true : false;
-    return { error: wrongPasswordError, index: foundUser.index };
+    const wrongPasswordError = foundUser.password !== newUser.password;
+        return { error: wrongPasswordError, index: foundUser.index };
   }
   const id = uuidv4();
-  const index = users.length + 1;
-  users.push({ ...newUser, index, id, ws });
-  console.log(users);
-  
+  const index = users.size + 1;
+  users.set(ws, { ...newUser, index, id });  
   return { error: false, index };
 }
 
-export function getCurrentUser(): User {
-  return users[users.length - 1];
+export function getUser(ws: WebSocket) {
+  return users.get(ws);
 }
