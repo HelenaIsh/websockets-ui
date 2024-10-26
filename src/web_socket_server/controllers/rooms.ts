@@ -10,19 +10,20 @@ export function updateRoom() {
     data: JSON.stringify(rooms),
     id: 0,
   };
-  console.log('from controllers, rooms, update room: ',rooms, response)
+  console.log('from controllers, rooms, update room: ', rooms, response);
   return JSON.stringify(response);
 }
-
 
 export function createNewRoom() {
   const currentUser: User = getCurrentUser();
   const newRoom = {
     roomId: uuidv4(),
-    roomUsers: [{
-      name: currentUser.name,
-      index: currentUser.index || 0
-    }]
+    roomUsers: [
+      {
+        name: currentUser.name,
+        index: currentUser.index || 0,
+      },
+    ],
   };
   addNewRoom(newRoom);
 }

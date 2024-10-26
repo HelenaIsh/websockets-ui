@@ -16,7 +16,7 @@ enum shipSizes {
   small = 'small',
   medium = 'medium',
   large = 'large',
-  huge = 'huge'
+  huge = 'huge',
 }
 
 export interface Message {
@@ -26,9 +26,11 @@ export interface Message {
 }
 
 export interface User {
+  id: string;
   name: string;
   password: string;
-  index?: number;
+  ws: WebSocket;
+  index: number;
 }
 
 export interface Room {
@@ -46,19 +48,10 @@ export interface Winner {
 
 export interface Ships {
   position: {
-    x: number,
-    y: number
-  },
-  direction: boolean,
-  type: shipSizes,
-  length: number
-}
-
-export function isUser(obj: any): obj is User {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'name' in obj &&
-    'password' in obj
-  );
+    x: number;
+    y: number;
+  };
+  direction: boolean;
+  type: shipSizes;
+  length: number;
 }

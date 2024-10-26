@@ -1,16 +1,15 @@
-import { User, isUser, Res } from '../types';
+import { User, Res } from '../types';
 import { addUser } from '../models/users';
 
-export function registerNewUser(newUser: User) {
-  const isUserConst = isUser(newUser);
-  const index = addUser(newUser);
+export function registerNewUser(newUser: User, ws: WebSocket) {
+  const {error, index} = addUser(newUser, ws);
   const response = {
     type: Res.reg,
     data: JSON.stringify({
       name: newUser.name,
       index: index,
-      error: isUserConst ? false : true,
-      errorText: isUserConst ? '' : 'not a valid user',
+      error,
+      errorText: 'wrongPassword',
     }),
     id: 0,
   };

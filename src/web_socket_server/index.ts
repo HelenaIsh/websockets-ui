@@ -14,7 +14,6 @@ export function createWebSocketServer() {
       const data = parsedMessage.data
         ? JSON.parse(parsedMessage.data as string)
         : '';
-        console.log('get new message: ',type, data)
       controllers(type as Res, data, ws);
     });
 

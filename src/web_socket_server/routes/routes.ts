@@ -7,7 +7,7 @@ import { createGame, startGame } from '../controllers/game';
 export default (type: Res, data: any, ws: any) => {
   switch (type) {
     case Res.reg:
-      ws.send(registerNewUser(data));
+      ws.send(registerNewUser(data, ws));
       ws.send(updateRoom());
       ws.send(updateWinners());
       break;
