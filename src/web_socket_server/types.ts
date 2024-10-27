@@ -34,16 +34,20 @@ export interface User {
 }
 
 export interface Room {
-  roomId: number | string;
-  roomUsers: {
-    name: string;
-    index: number | string;
-  }[];
+  id: number | string;
+  users: User[];
 }
 
 export interface Winner {
   name: string;
   wins: number;
+}
+
+export interface Game {
+  id: string | number;
+  roomId: string | number;
+  players: User[];
+  turn: string;
 }
 
 export interface Ships {

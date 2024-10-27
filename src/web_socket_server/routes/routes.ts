@@ -1,8 +1,12 @@
 import { Res } from '../types';
 import { registerNewUser } from '../controllers/registration';
-import { createNewRoom, updateRoom } from '../controllers/rooms';
+import {
+  addNewUserToTheRoom,
+  createNewRoom,
+  updateRoom,
+} from '../controllers/rooms';
 import { updateWinners } from '../controllers/winners';
-import { createGame, startGame } from '../controllers/game';
+import { createGame, getTurn, startGame } from '../controllers/game';
 
 export default (type: Res, data: any, ws: any) => {
   switch (type) {
@@ -16,13 +20,16 @@ export default (type: Res, data: any, ws: any) => {
       ws.send(updateRoom());
       break;
     case Res.add_user_to_room:
-      const roomIndex = data.indexRoom;
-      ws.send(createGame(roomIndex));
+      const roomId = data.indexRoom;
+      addNewUserToTheRoom(roomId, ws);
+      ws.send(createGame(ws, roomId));
       break;
     case Res.add_ships:
       const userId = data.indexPlayer;
       const ships = data.ships;
-      ws.send(startGame(userId, ships));
+      const gameId = data.gameId;
+      ws.send(startGame(userId, ships));  
+      ws.send(getTurn(gameId));
       break;
     default:
       () => {
