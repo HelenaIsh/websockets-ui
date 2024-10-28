@@ -10,7 +10,7 @@ export function getGameByRoomId(roomId: string) {
 
 export function addNewGame(player: User, roomId: string) {
   const existingGame = getGameByRoomId(roomId);
-  
+
   if (existingGame) {
     existingGame.players.push(player);
     return existingGame.id;
@@ -27,7 +27,7 @@ export function addNewGame(player: User, roomId: string) {
 
 export function addShips(gameId: string, playerId: string, ships: Ship[]) {
   const game = getGameById(gameId);
-  const player = game.players.filter(player => player.id === playerId)[0];
+  const player = game.players.filter((player) => player.id === playerId)[0];
   player.ships = ships;
 }
 
@@ -42,20 +42,26 @@ export function getGameTurn(gameId: string) {
 export function getOpponent(gameId: string, playerId: string) {
   const game = getGameById(gameId);
   const players = game.players;
-  return players.filter(player => player.id !== playerId)[0].id;
+  return players.filter((player) => player.id !== playerId)[0].id;
 }
 
 export function getGamePlayerById(gameId: string, playerId: string) {
   const game = getGameById(gameId);
   const players = game.players;
-  return players.filter(player => player.id !== playerId)[0];
+  return players.filter((player) => player.id !== playerId)[0];
 }
 
 export function getUserShips(gameId: string, playerId: string) {
   return getGamePlayerById(gameId, playerId).ships;
 }
 
-export function handleAttack(gameId: string, x: number, y: number, playerId: string, ws: WebSocket) {
+export function handleAttack(
+  gameId: string,
+  x: number,
+  y: number,
+  playerId: string,
+  ws: WebSocket,
+) {
   const existingGame = getGameById(gameId);
   const ships = getUserShips(gameId, playerId);
   if (!ships) {
@@ -63,11 +69,11 @@ export function handleAttack(gameId: string, x: number, y: number, playerId: str
   }
   const player = getGamePlayerById(gameId, playerId);
   if (player.hits) {
-    player.hits.push({x, y});
+    player.hits.push({ x, y });
   } else {
-    player.hits = [{x, y}]
+    player.hits = [{ x, y }];
   }
-  
+
   for (let ship of ships) {
     const cells = [];
 
@@ -75,18 +81,18 @@ export function handleAttack(gameId: string, x: number, y: number, playerId: str
       const cellX = ship.position.x + (!ship.direction ? i : 0);
       const cellY = ship.position.y + (ship.direction ? i : 0);
       cells.push({ x: cellX, y: cellY });
-    }  
-    const hitCell = cells.find(cell => cell.x === x && cell.y === y);    
+    }
+    const hitCell = cells.find((cell) => cell.x === x && cell.y === y);
     if (hitCell) {
       if (!ship.hits) {
         ship.hits = [hitCell];
-      } else if (!ship.hits.some(hit => hit.x === x && hit.y === y)) {
+      } else if (!ship.hits.some((hit) => hit.x === x && hit.y === y)) {
         ship.hits.push(hitCell);
       }
 
       if (ship.hits.length === ship.length) {
         ship.status = ShipStatus.killed;
-        
+
         existingGame.turn = playerId;
         markShipAsKilled(ship, playerId, ws);
         markSurroundingCellsAsMiss(ship, playerId, ws, gameId);
@@ -97,40 +103,44 @@ export function handleAttack(gameId: string, x: number, y: number, playerId: str
     }
   }
 
-  
   existingGame.turn = getOpponent(gameId, playerId);
   return ShipStatus.miss;
 }
 
 export function isGameFinished(gameId: string, playerId: string) {
   const ships = getUserShips(gameId, playerId);
-  return ships?.every(ship => ship.status === ShipStatus.killed);
+  return ships?.every((ship) => ship.status === ShipStatus.killed);
 }
 
 function markShipAsKilled(ship: Ship, playerId: string, ws: WebSocket) {
   for (let i = 0; i < ship.length; i++) {
     const x = ship.position.x + (!ship.direction ? i : 0);
     const y = ship.position.y + (ship.direction ? i : 0);
-    
+
     const response = {
       type: Res.attack,
       data: JSON.stringify({
         position: {
           x,
-          y
+          y,
         },
         currentPlayer: playerId,
-        status: ShipStatus.killed
+        status: ShipStatus.killed,
       }),
       id: 0,
-    };  
+    };
     ws.send(JSON.stringify(response));
   }
 }
 
-function markSurroundingCellsAsMiss(ship: Ship, playerId: string, ws: WebSocket, gameId: string) {
+function markSurroundingCellsAsMiss(
+  ship: Ship,
+  playerId: string,
+  ws: WebSocket,
+  gameId: string,
+) {
   console.log('markSurroundingCellsAsMiss', ship);
-  
+
   for (let i = 0; i < ship.length; i++) {
     const x = ship.position.x + (!ship.direction ? i : 0);
     const y = ship.position.y + (ship.direction ? i : 0);
@@ -143,33 +153,37 @@ function markSurroundingCellsAsMiss(ship: Ship, playerId: string, ws: WebSocket,
       { x: x - 1, y: y - 1 },
       { x: x + 1, y: y - 1 },
       { x: x - 1, y: y + 1 },
-      { x: x + 1, y: y + 1 }
+      { x: x + 1, y: y + 1 },
     ];
-    
 
     for (let cell of surroundingCells) {
-      const shipIncludesThisCell = ship.hits?.some(hit => hit.x === cell.x && hit.y === cell.y)
-      if (cell.x >= 0 && cell.x < 10 && cell.y >= 0 && cell.y < 10 && !shipIncludesThisCell) {
+      const shipIncludesThisCell = ship.hits?.some(
+        (hit) => hit.x === cell.x && hit.y === cell.y,
+      );
+      if (
+        cell.x >= 0 &&
+        cell.x < 10 &&
+        cell.y >= 0 &&
+        cell.y < 10 &&
+        !shipIncludesThisCell
+      ) {
         const player = getGamePlayerById(gameId, playerId);
-        player.hits?.push({x: cell.x, y: cell.y})
-      
-        
+        player.hits?.push({ x: cell.x, y: cell.y });
+
         const response = {
           type: Res.attack,
           data: JSON.stringify({
             position: {
               x: cell.x,
-              y: cell.y
+              y: cell.y,
             },
             currentPlayer: playerId,
-            status: ShipStatus.miss
+            status: ShipStatus.miss,
           }),
           id: 0,
-        };  
+        };
         ws.send(JSON.stringify(response));
       }
     }
   }
 }
-
-

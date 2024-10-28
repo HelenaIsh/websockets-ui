@@ -20,9 +20,9 @@ enum ShipSizes {
 }
 
 export enum ShipStatus {
-  miss = "miss",
-  killed = "killed",
-  shot = "shot"
+  miss = 'miss',
+  killed = 'killed',
+  shot = 'shot',
 }
 
 export interface Message {
@@ -38,7 +38,7 @@ export interface User {
   ws: WebSocket;
   index: number;
   ships?: Ship[];
-  hits?: Position[]
+  hits?: Position[];
 }
 
 export interface Room {

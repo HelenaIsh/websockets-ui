@@ -12,12 +12,7 @@ export function addNewRoom(newRoom: Room) {
 
 export function addNewUserToRoom(roomId: string, user: User) {
   const room = rooms.filter((room) => room.id === roomId)[0];
-  if (
-    !room.users.some(
-      (roomUser: User) =>
-        roomUser.id === user.id,
-    )
-  ) {
+  if (!room.users.some((roomUser: User) => roomUser.id === user.id)) {
     room.users.push(user);
   }
 }

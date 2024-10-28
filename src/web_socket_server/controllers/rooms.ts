@@ -39,9 +39,7 @@ export function createNewRoom(ws: WebSocket) {
   }
   const newRoom: Room = {
     id: uuidv4(),
-    users: [
-      user
-    ],
+    users: [user],
   };
 
   addNewRoom(newRoom);

@@ -6,7 +6,13 @@ import {
   updateRoom,
 } from '../controllers/rooms';
 import { updateWinners } from '../controllers/winners';
-import { createGame, getTurn, startGame, getAttackFeedback, checkIfGameFinished } from '../controllers/game';
+import {
+  createGame,
+  getTurn,
+  startGame,
+  getAttackFeedback,
+  checkIfGameFinished,
+} from '../controllers/game';
 import { getGameById } from '../models/game';
 
 export default (type: Res, data: any, ws: any) => {
@@ -32,7 +38,7 @@ export default (type: Res, data: any, ws: any) => {
       const userId = data.indexPlayer;
       const ships = data.ships;
       const gameId = data.gameId;
-      ws.send(startGame(gameId, userId, ships));  
+      ws.send(startGame(gameId, userId, ships));
       ws.send(getTurn(gameId));
       break;
     }
@@ -46,9 +52,10 @@ export default (type: Res, data: any, ws: any) => {
       ws.send(attackFeedback);
       const game = getGameById(gameId);
       const players = game.players;
-      players.forEach(player => player.ws.send(getTurn(gameId)));
+      players.forEach((player) => player.ws.send(getTurn(gameId)));
       const isGameFinishedResponse = checkIfGameFinished(gameId, playerId);
-      isGameFinishedResponse && players.forEach(player => player.ws.send(isGameFinishedResponse));
+      isGameFinishedResponse &&
+        players.forEach((player) => player.ws.send(isGameFinishedResponse));
       break;
     }
     default:

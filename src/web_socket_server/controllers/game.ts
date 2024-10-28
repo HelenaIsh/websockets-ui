@@ -1,7 +1,15 @@
 import { Res, ShipStatus } from '../types';
 import { Ship } from '../types';
 import { getUser } from '../models/users';
-import { addNewGame, addShips, getGameTurn, handleAttack, isGameFinished, getGameById, getGamePlayerById } from '../models/game';
+import {
+  addNewGame,
+  addShips,
+  getGameTurn,
+  handleAttack,
+  isGameFinished,
+  getGameById,
+  getGamePlayerById,
+} from '../models/game';
 
 export function createGame(ws: WebSocket, roomId: string) {
   const user = getUser(ws);
@@ -14,7 +22,7 @@ export function createGame(ws: WebSocket, roomId: string) {
     );
     return;
   }
-  const gameId = addNewGame({...user, ws}, roomId);
+  const gameId = addNewGame({ ...user, ws }, roomId);
   const response = {
     type: Res.create_game,
     data: JSON.stringify({
@@ -48,46 +56,49 @@ export function getTurn(gameId: string) {
       currentPlayer: turn,
     }),
     id: 0,
-  };  
+  };
   return JSON.stringify(response);
 }
 
-
-export function getAttackFeedback(gameId: string, x: number, y: number, playerId: string, ws: WebSocket) {
+export function getAttackFeedback(
+  gameId: string,
+  x: number,
+  y: number,
+  playerId: string,
+  ws: WebSocket,
+) {
   const turn = getGameTurn(gameId);
-  const game = getGameById(gameId); 
+  const game = getGameById(gameId);
   const player = getGamePlayerById(gameId, playerId);
-  const cellWasHitted = player.hits?.some(hit => hit.x === x && hit.y === y);
-  
+  const cellWasHitted = player.hits?.some((hit) => hit.x === x && hit.y === y);
+
   if (turn !== playerId || game.players.length === 1 || cellWasHitted) return;
   const resultOfAttack = handleAttack(gameId, x, y, playerId, ws);
-  
+
   const response = {
     type: Res.attack,
     data: JSON.stringify({
       position: {
         x,
-        y
+        y,
       },
       currentPlayer: playerId,
-      status: resultOfAttack
+      status: resultOfAttack,
     }),
     id: 0,
-  };  
+  };
   return JSON.stringify(response);
-  
 }
 
-export function checkIfGameFinished(gameId: string, playerId: string) {  
+export function checkIfGameFinished(gameId: string, playerId: string) {
   if (isGameFinished(gameId, playerId)) {
     const response = {
       type: Res.finish,
       data: JSON.stringify({
-        winPlayer: playerId
+        winPlayer: playerId,
       }),
       id: 0,
     };
-    return JSON.stringify(response);  
+    return JSON.stringify(response);
   }
-  
 }
