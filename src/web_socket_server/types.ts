@@ -12,11 +12,17 @@ export enum Res {
   add_ships = 'add_ships',
 }
 
-enum shipSizes {
+enum ShipSizes {
   small = 'small',
   medium = 'medium',
   large = 'large',
   huge = 'huge',
+}
+
+export enum ShipStatus {
+  miss = "miss",
+  killed = "killed",
+  shot = "shot"
 }
 
 export interface Message {
@@ -31,6 +37,7 @@ export interface User {
   password: string;
   ws: WebSocket;
   index: number;
+  ships?: Ship[];
 }
 
 export interface Room {
@@ -50,12 +57,16 @@ export interface Game {
   turn: string;
 }
 
-export interface Ships {
-  position: {
-    x: number;
-    y: number;
-  };
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface Ship {
+  position: Position;
   direction: boolean;
-  type: shipSizes;
+  type: ShipSizes;
   length: number;
+  hits?: Position[];
+  status?: ShipStatus;
 }
