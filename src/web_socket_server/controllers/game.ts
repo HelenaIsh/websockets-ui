@@ -55,9 +55,10 @@ export function getTurn(gameId: string) {
 
 export function getAttackFeedback(gameId: string, x: number, y: number, playerId: string, ws: WebSocket) {
   const turn = getGameTurn(gameId);
-  const game = getGameById(gameId)
+  const game = getGameById(gameId);  
+  
   if (turn !== playerId || game.players.length === 1) return;
-  const resultOfAttack = handleAttack(gameId, x, y, playerId);
+  const resultOfAttack = handleAttack(gameId, x, y, playerId, ws);
   
   const response = {
     type: Res.attack,
