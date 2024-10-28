@@ -45,7 +45,7 @@ export function getOpponent(gameId: string, playerId: string) {
   return players.filter(player => player.id !== playerId)[0].id;
 }
 
-function getGamePlayerById(gameId: string, playerId: string) {
+export function getGamePlayerById(gameId: string, playerId: string) {
   const game = getGameById(gameId);
   const players = game.players;
   return players.filter(player => player.id !== playerId)[0];
@@ -60,6 +60,12 @@ export function handleAttack(gameId: string, x: number, y: number, playerId: str
   const ships = getUserShips(gameId, playerId);
   if (!ships) {
     return;
+  }
+  const player = getGamePlayerById(gameId, playerId);
+  if (player.hits) {
+    player.hits.push({x, y});
+  } else {
+    player.hits = [{x, y}]
   }
   
   for (let ship of ships) {
@@ -83,7 +89,7 @@ export function handleAttack(gameId: string, x: number, y: number, playerId: str
         
         existingGame.turn = playerId;
         markShipAsKilled(ship, playerId, ws);
-        markSurroundingCellsAsMiss(ship, playerId, ws);
+        markSurroundingCellsAsMiss(ship, playerId, ws, gameId);
         return ShipStatus.killed;
       }
       existingGame.turn = playerId;
@@ -122,7 +128,7 @@ function markShipAsKilled(ship: Ship, playerId: string, ws: WebSocket) {
   }
 }
 
-function markSurroundingCellsAsMiss(ship: Ship, playerId: string, ws: WebSocket) {
+function markSurroundingCellsAsMiss(ship: Ship, playerId: string, ws: WebSocket, gameId: string) {
   console.log('markSurroundingCellsAsMiss', ship);
   
   for (let i = 0; i < ship.length; i++) {
@@ -144,6 +150,9 @@ function markSurroundingCellsAsMiss(ship: Ship, playerId: string, ws: WebSocket)
     for (let cell of surroundingCells) {
       const shipIncludesThisCell = ship.hits?.some(hit => hit.x === cell.x && hit.y === cell.y)
       if (cell.x >= 0 && cell.x < 10 && cell.y >= 0 && cell.y < 10 && !shipIncludesThisCell) {
+        const player = getGamePlayerById(gameId, playerId);
+        player.hits?.push({x: cell.x, y: cell.y})
+      
         
         const response = {
           type: Res.attack,

@@ -38,6 +38,7 @@ export interface User {
   ws: WebSocket;
   index: number;
   ships?: Ship[];
+  hits?: Position[]
 }
 
 export interface Room {

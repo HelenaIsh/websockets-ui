@@ -1,7 +1,7 @@
 import { Res, ShipStatus } from '../types';
 import { Ship } from '../types';
 import { getUser } from '../models/users';
-import { addNewGame, addShips, getGameTurn, handleAttack, isGameFinished, getGameById } from '../models/game';
+import { addNewGame, addShips, getGameTurn, handleAttack, isGameFinished, getGameById, getGamePlayerById } from '../models/game';
 
 export function createGame(ws: WebSocket, roomId: string) {
   const user = getUser(ws);
@@ -55,9 +55,11 @@ export function getTurn(gameId: string) {
 
 export function getAttackFeedback(gameId: string, x: number, y: number, playerId: string, ws: WebSocket) {
   const turn = getGameTurn(gameId);
-  const game = getGameById(gameId);  
+  const game = getGameById(gameId); 
+  const player = getGamePlayerById(gameId, playerId);
+  const cellWasHitted = player.hits?.some(hit => hit.x === x && hit.y === y);
   
-  if (turn !== playerId || game.players.length === 1) return;
+  if (turn !== playerId || game.players.length === 1 || cellWasHitted) return;
   const resultOfAttack = handleAttack(gameId, x, y, playerId, ws);
   
   const response = {
